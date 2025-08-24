@@ -3,6 +3,7 @@ package com.paypal.user_service.service;
 import com.paypal.user_service.entity.User;
 import com.paypal.user_service.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -10,12 +11,14 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
 
     @Override
     public User createUser(User user) {
+        log.debug("Creating user: {}", user);
         return userRepository.save(user);
     }
 

@@ -11,5 +11,6 @@ import lombok.Setter;
 @AllArgsConstructor
 public class JwtResponse {
     String token;
+    String role;
 
 }

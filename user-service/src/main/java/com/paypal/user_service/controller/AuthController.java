@@ -7,6 +7,7 @@ import com.paypal.user_service.entity.User;
 import com.paypal.user_service.repository.UserRepository;
 import com.paypal.user_service.util.JWTUtil;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -18,6 +19,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
+@Slf4j
 @RestController
 @RequestMapping("/auth")
 @RequiredArgsConstructor
@@ -30,6 +32,7 @@ public class AuthController {
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody SignupRequest signupRequest) {
+
         Optional<User> existingUser = userRepository.findByEmail(signupRequest.getEmail());
         if(existingUser.isPresent()){
             return ResponseEntity.badRequest().body("User Already present");
@@ -42,6 +45,7 @@ public class AuthController {
         user.setRole("ROLE_USER");//Normal user
         //user saved
         userRepository.save(user);
+        log.debug("User created {}",user);
         return ResponseEntity.ok("User registered successfully");
     }
 

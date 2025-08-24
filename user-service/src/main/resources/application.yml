@@ -3,4 +3,5 @@ spring:
     name: user-service
 logging:
   level:
-    org.springframework.security: DEBUG
+    com.paypal.user_service: DEBUG
+    root: INFO
