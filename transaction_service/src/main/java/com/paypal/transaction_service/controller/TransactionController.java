@@ -14,7 +14,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class TransactionController {
 
-    TransactionService transactionService;
+    private final TransactionService transactionService;
 
     @PostMapping("/create")
     public ResponseEntity<?> create(@Valid @RequestBody Transaction transaction){

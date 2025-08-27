@@ -2,9 +2,11 @@ package com.paypal.transaction_service.service.impl;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.paypal.transaction_service.entity.Transaction;
+import com.paypal.transaction_service.kafka.KafkaEventProducer;
 import com.paypal.transaction_service.repository.TransactionRepository;
 import com.paypal.transaction_service.service.TransactionService;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -12,21 +14,20 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class TransactionServiceImpl implements TransactionService {
 
-    TransactionRepository repository;
-    ObjectMapper objectMapper;
+    private final TransactionRepository repository;
+    private final ObjectMapper objectMapper;
+    private final KafkaEventProducer kafkaEventProducer;
 
     @Override
     public Transaction createTransaction(Transaction request) {
-        System.out.println("🚀 Entered createTransaction()");
+        log.info("New transaction started");
 
         Long senderId = request.getSenderId();
         Long receiverId = request.getReceiverId();
         Double amount = request.getAmount();
-
-
-
 
         Transaction transaction = new Transaction();
         transaction.setSenderId(senderId);
@@ -35,10 +36,20 @@ public class TransactionServiceImpl implements TransactionService {
         transaction.setTimestamp(LocalDateTime.now());
         transaction.setStatus("SUCCESS");
 
-        System.out.println("📥 Incoming Transaction object: " + transaction);
+        log.info("Incoming Transaction object: {}", transaction);
 
         Transaction saved = repository.save(transaction);
-        System.out.println("💾 Saved Transaction from DB: " + saved);
+        log.info("Saved Transaction from DB: {}", saved);
+
+        try {
+            String eventPayload  = objectMapper.writeValueAsString(transaction);
+            String key = String.valueOf(saved.getId());
+            kafkaEventProducer.sendTransactionEvent(key,eventPayload);
+        }catch (Exception e){
+            log.error("Error while saving transaction: {}", e.getMessage());
+            e.printStackTrace();
+        }
+
         return saved;
     }
 

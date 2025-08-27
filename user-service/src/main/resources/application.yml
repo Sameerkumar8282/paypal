@@ -5,3 +5,6 @@ logging:
   level:
     com.paypal.user_service: DEBUG
     root: INFO
+
+server:
+  port: 8081
